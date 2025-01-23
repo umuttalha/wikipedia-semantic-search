@@ -7,11 +7,13 @@ import List from "./list";
 import { MODEL_OPTIONS, ModelOption } from "@/lib/types";
 
 export const SearchResult = ({
+  textReranker,
   searchParam,
   onLoadingChange,
   modelOption,
   setModelOption,
 }: {
+  textReranker: boolean;
   searchParam: string;
   onLoadingChange: (isLoading: boolean) => void;
   modelOption: ModelOption;
@@ -78,7 +80,7 @@ export const SearchResult = ({
         </div>
       )}
       {query.isError && <ErrorMessages state={query.data} />}
-      <List state={query.data} />
+      <List state={query.data} textReranker={textReranker} />
     </div>
   );
 };

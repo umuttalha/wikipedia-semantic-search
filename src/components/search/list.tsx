@@ -4,7 +4,7 @@ import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { QueryResult } from "@upstash/vector";
 import { PropsWithChildren } from "react";
 
-export default function List({ state }: { state: Result | undefined }) {
+export default function List({ textReranker, state }: { textReranker: boolean, state: Result | undefined }) {
   const [searchParam, setSearchParam] = useQuerySearchParam();
   const isEmpty = searchParam.query === "";
 
@@ -12,11 +12,14 @@ export default function List({ state }: { state: Result | undefined }) {
     isEmpty || (state && state.data.length === 0)
       ? undefined
       : !state
-        ? new Array(3).fill(null).map((_, i) => <ListItem key={i} skeleton />)
+        ? new Array(3).fill(null).map((_, i) => (
+            <ListItem key={i} skeleton textReranker={textReranker} />
+          ))
         : state?.data.map((vector, i) => (
             <ListItem
               key={vector.metadata?.id + i.toString()}
               vector={vector}
+              textReranker={textReranker}
             />
           ));
 
@@ -28,18 +31,20 @@ function ListItemBorderBox({ children }: PropsWithChildren) {
     <div className="p-6 bg-zinc-100 rounded-2xl overflow-auto">{children}</div>
   );
 }
-
 function ListItem({
   vector,
   skeleton,
+  textReranker,
 }:
   | {
       vector: QueryResult<WikiMetadata>;
       skeleton?: never;
+      textReranker: boolean;
     }
   | {
       vector?: never;
       skeleton: true;
+      textReranker: boolean;
     }) {
   if (skeleton) {
     return (
@@ -51,6 +56,12 @@ function ListItem({
       </ListItemBorderBox>
     );
   }
+
+  console.log(vector);
+  console.log(textReranker); // Now this will work
+
+  // You can use `isChecked` here to control sorting or other logic
+
   return (
     <ListItemBorderBox>
       <article>
