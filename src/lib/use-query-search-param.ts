@@ -4,6 +4,7 @@ import { ModelOption } from "./types";
 
 type QuerySearchParam = {
   query: string;
+  rightQuery?: string;
   leftModel: ModelOption;
   rightModel: ModelOption;
 };
@@ -14,25 +15,27 @@ export const useQuerySearchParam = () => {
   const pathname = usePathname();
 
   const query = searchParams.get("query") ?? "";
+  const rightQuery = searchParams.get("rightQuery") ?? query;
   const leftModel = (searchParams.get("leftModel") ?? "") as ModelOption;
   const rightModel = (searchParams.get("rightModel") ?? "") as ModelOption;
 
   const setState = useCallback(
     (params: Partial<QuerySearchParam>) => {
-      router.push(
-        `${pathname}?${new URLSearchParams({
-          query,
-          leftModel,
-          rightModel,
-          ...params,
-        })}`,
-      );
+      const newParams = new URLSearchParams({
+        query,
+        rightQuery,
+        leftModel,
+        rightModel,
+        ...params,
+      });
+      router.push(`${pathname}?${newParams}`);
     },
-    [searchParams],
+    [pathname, query, rightQuery, leftModel, rightModel, router]
   );
 
   const params: QuerySearchParam = {
     query,
+    rightQuery,
     leftModel,
     rightModel,
   };

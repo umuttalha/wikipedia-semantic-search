@@ -9,17 +9,23 @@ import { MODEL_OPTIONS, ModelOption } from "@/lib/types";
 export const SearchResult = ({
   textReranker,
   searchParam,
+  rightQuery,
+  isRightPanel,
   onLoadingChange,
   modelOption,
   setModelOption,
 }: {
   textReranker: boolean;
   searchParam: string;
+  rightQuery?: string;
+  isRightPanel?: boolean;
   onLoadingChange: (isLoading: boolean) => void;
   modelOption: ModelOption;
   setModelOption: (model: ModelOption) => void;
 }) => {
-  const query = useSearch({ modelOption, search: searchParam });
+  const queryToUse = isRightPanel ? (rightQuery || searchParam) : searchParam;
+  
+  const query = useSearch({ modelOption, search: queryToUse });
 
   // Update global loading state
   useEffect(() => {

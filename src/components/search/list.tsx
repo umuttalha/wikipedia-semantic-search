@@ -2,20 +2,54 @@ import { Result, WikiMetadata } from "@/lib/types";
 import { useQuerySearchParam } from "@/lib/use-query-search-param";
 import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { QueryResult } from "@upstash/vector";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 export default function List({ textReranker, state }: { textReranker: boolean, state: Result | undefined }) {
   const [searchParam, setSearchParam] = useQuerySearchParam();
   const isEmpty = searchParam.query === "";
+  const [rerankedVectors, setRerankedVectors] = useState<QueryResult<WikiMetadata>[]>();
+
+  useEffect(() => {
+    async function rerankVectors() {
+      if (textReranker && state?.data && searchParam.query) {
+        try {
+          const response = await fetch('http://localhost:8000/rerank', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              query: searchParam.query,
+              vectors: state.data
+            })
+          });
+
+          if (response.ok) {
+            const rerankedData = await response.json();
+            setRerankedVectors(rerankedData);
+          }
+        } catch (error) {
+          console.error('Error reranking vectors:', error);
+        }
+      }
+    }
+
+
+    
+
+    rerankVectors();
+  }, [textReranker, state, searchParam.query]);
+
+  const vectors = textReranker ? rerankedVectors : state?.data;
 
   const listItems =
-    isEmpty || (state && state.data.length === 0)
+    isEmpty || (state && vectors?.length === 0)
       ? undefined
-      : !state
+      : !vectors
         ? new Array(3).fill(null).map((_, i) => (
             <ListItem key={i} skeleton textReranker={textReranker} />
           ))
-        : state?.data.map((vector, i) => (
+        : vectors.map((vector, i) => (
             <ListItem
               key={vector.metadata?.id + i.toString()}
               vector={vector}
@@ -57,10 +91,6 @@ function ListItem({
     );
   }
 
-  console.log(vector);
-  console.log(textReranker); // Now this will work
-
-  // You can use `isChecked` here to control sorting or other logic
 
   return (
     <ListItemBorderBox>

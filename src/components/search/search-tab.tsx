@@ -44,20 +44,40 @@ export const SearchTab = () => {
   }, [searchParam, isInitial]);
 
   const handleSearchSubmit = async (query: string) => {
+    let rightQuery = query;
+    
     if (isFasttext) {
       try {
-        const response = await fetch(`http://127.0.0.1:6600/similar_words?word=${encodeURIComponent(query)}&top_n=5`);
-        const data = await response.json();
-        const similarWords = data.similar_words.map((item: { word: string }) => item.word);
-        const combinedWords = similarWords.join(" "); // Kelimeleri boşlukla birleştir
-        query = modifyQuery(combinedWords); // Birleştirilmiş kelimeleri kullan
+        const response = await fetch('http://localhost:8000/find-similar-words', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            text: query,
+            max_results: 5
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        rightQuery = await response.text();
+        
       } catch (error) {
         console.error('Error:', error);
+        rightQuery = query;
       }
     }
 
-    console.log("Modified Query:", query);
-    setSearchParam({ query: query });
+    console.log("Original Query:", query);
+    console.log("Right Query:", rightQuery);
+    
+    setSearchParam({ 
+      query: query,
+      rightQuery: isFasttext ? rightQuery : query
+    });
   };
 
   const modifyQuery = (query: string) => {
@@ -88,27 +108,30 @@ export const SearchTab = () => {
             onLoadingChange={setIsAnyLoading}
             modelOption={searchParam.leftModel}
             setModelOption={(model) => setSearchParam({ leftModel: model })}
+            isRightPanel={false}
           />
         </BorderBox>
 
         <BorderBox>
           <ToggleNew
-            textReranker={isFasttext}
-            setTextReranker={setIsFasttext}
+            checked={isFasttext}
             onChange={(checked) => {
-              console.log("Fasttext Toggle is now:", checked); // Konsola yazdır
-              setIsFasttext(checked); // State'i güncelle
+              console.log("Fasttext Toggle is now:", checked);
+              setIsFasttext(checked);
+              if (!checked) {
+                // Reset right query to match left when disabling fasttext
+                setSearchParam({ rightQuery: searchParam.query });
+              }
             }}
             className="mt-4"
             label="fasttext"
           />
 
           <ToggleNew
-            textReranker={textReranker}
-            setTextReranker={setTextReranker}
+            checked={textReranker}
             onChange={(checked) => {
-              console.log("Fasttext Toggle is now:", checked); // Konsola yazdır
-              setTextReranker(checked); // State'i güncelle
+              console.log("TextReranker Toggle is now:", checked);
+              setTextReranker(checked);
             }}
             className="mt-4"
             label="textReranker"
@@ -117,6 +140,8 @@ export const SearchTab = () => {
           <SearchResult
             textReranker={textReranker}
             searchParam={searchParam.query}
+            rightQuery={searchParam.rightQuery}
+            isRightPanel={true}
             onLoadingChange={setIsAnyLoading}
             modelOption={searchParam.rightModel}
             setModelOption={(model) => setSearchParam({ rightModel: model })}
