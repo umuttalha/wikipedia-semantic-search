@@ -48,7 +48,7 @@ export const SearchTab = () => {
     
     if (isFasttext) {
       try {
-        const response = await fetch('http://localhost:8000/find-similar-words', {
+        const response = await fetch('http://173.212.198.227:8000/find-similar-words', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

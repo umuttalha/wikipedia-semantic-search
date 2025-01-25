@@ -13,7 +13,7 @@ export default function List({ textReranker, state }: { textReranker: boolean, s
     async function rerankVectors() {
       if (textReranker && state?.data && searchParam.query) {
         try {
-          const response = await fetch('http://localhost:8000/rerank', {
+          const response = await fetch('http://173.212.198.227:8000/rerank', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
