@@ -35,6 +35,14 @@ export const MODEL_CONFIGS: Record<
     index: mxbaiIndex,
     queryMode: QueryMode.HYBRID,
   },
+  "Custom bge-m3": {
+    index: bgeIndex,
+    queryMode: QueryMode.HYBRID,
+  },
+  "Custom mxbai": {
+    index: mxbaiIndex,
+    queryMode: QueryMode.HYBRID,
+  }
 };
 
 export const RAG_CHAT: Record<ModelOption, RAGChat> = {
@@ -44,4 +52,6 @@ export const RAG_CHAT: Record<ModelOption, RAGChat> = {
   "BM25 (Sparse)": mxbaiRagChat,
   "BGE-M3 / BGE-M3 (Hybrid)": bgeRagChat,
   "MXBAI / BM25 (Hybrid)": mxbaiRagChat,
+  "Custom bge-m3": bgeRagChat,
+  "Custom mxbai": mxbaiRagChat
 };

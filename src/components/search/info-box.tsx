@@ -5,6 +5,8 @@ import { Info } from "../info";
 export const InfoBox = () => {
   const { data: info } = useFetchInfo();
 
+  console.log(info);
+
   return (
     <Info className="mt-16 sm:mt-24 px-10">
       <p>

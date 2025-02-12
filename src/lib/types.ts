@@ -42,5 +42,7 @@ export const MODEL_OPTIONS = [
   "BM25 (Sparse)",
   "BGE-M3 / BGE-M3 (Hybrid)",
   "MXBAI / BM25 (Hybrid)",
+  "Custom bge-m3",
+  "Custom mxbai"
 ] as const;
 export type ModelOption = (typeof MODEL_OPTIONS)[number];
